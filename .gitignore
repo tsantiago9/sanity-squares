@@ -1,5 +1,3 @@
-node_modules
-dist
-.env
-.local.settings.json
-.azurite
+# Azurite logs
+api/azurite/*.log
+api/azurite/debug.log

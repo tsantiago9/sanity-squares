@@ -8,21 +8,43 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: Build App
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: api/web/package-lock.json
+
+      # HARD FAIL if the secret isn't actually available to this run
+      - name: Sanity check SWA token is present
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}" ]; then
+            echo "SWA TOKEN IS EMPTY (GitHub Action cannot read secrets.AZURE_STATIC_WEB_APPS_API_TOKEN)"
+            echo "Fix: Repo Settings → Secrets and variables → Actions → Repository secrets"
+            exit 1
+          else
+            echo "SWA TOKEN PRESENT"
+          fi
+
+      - name: Install & Build (api/web)
+        shell: bash
         run: |
           cd api/web
           npm ci
           npm run build
 
-      - name: Deploy
+      - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: upload
+          action: "upload"
           app_location: "api/web"
           api_location: "api"
           output_location: "dist"

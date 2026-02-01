@@ -13,7 +13,7 @@ jobs:
 
       - name: Build App
         run: |
-          cd app/web
+          cd api/web
           npm ci
           npm run build
 

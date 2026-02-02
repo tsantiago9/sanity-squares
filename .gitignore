@@ -22,8 +22,13 @@ api/obj/
 **/azurite/
 api/azurite/*.log
 api/azurite/debug.log
+api/.azurite/
+api/web/.azurite/
 **/AzuriteConfig/
+**/.azurite/
+**/azurite/
 **/AzuriteConfig/**
+
 
 # Azure Static Web Apps
 .azure/

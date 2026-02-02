@@ -1,6 +1,6 @@
 name: Azure Static Web Apps CI/CD
 
-"on":
+on:
   push:
     branches:
       - main
@@ -10,34 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js 22
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      # Build front-end (Vite)
-      - name: Install & Build Web App
-        shell: bash
+      - name: Build frontend
         run: |
           cd api/web
           npm ci
           npm run build
 
-      # Deploy BOTH web + api (let Azure detect Functions language)
-      - name: Deploy to Azure Static Web Apps
+      - name: Deploy static site
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-
-          # Web output (already built)
-          app_location: "api/web"
-          output_location: "dist"
-          
-          # Azure Functions API (Node)
-          api_location: "api"
-
+          action: upload
+          app_location: api/web
+          output_location: dist

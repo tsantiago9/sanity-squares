@@ -1,4 +1,5 @@
 name: Azure Static Web Apps CI/CD
+
 "on":
   push:
     branches:
@@ -7,53 +8,36 @@ name: Azure Static Web Apps CI/CD
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 18
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: api/web/package-lock.json
+          node-version: "22"
 
-      - name: Sanity check SWA token is present (and clean)
-        shell: bash
-        run: |
-          TOKEN="${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}"
-          if [ -z "$TOKEN" ]; then
-            echo "SWA TOKEN IS EMPTY (GitHub Action cannot read secrets.AZURE_STATIC_WEB_APPS_API_TOKEN)"
-            exit 1
-          fi
-          echo "SWA TOKEN PRESENT"
-          echo "Token length: ${#TOKEN}"
-          LINES=$(printf "%s" "$TOKEN" | awk 'END{print NR}')
-          echo "Token lines: $LINES"
-          if [[ "$TOKEN" == *"..."* ]]; then
-            echo "ERROR: token contains literal '...' (likely copied a truncated display value). Re-copy full token."
-            exit 1
-          fi
-          if [ "$LINES" -ne 1 ]; then
-            echo "ERROR: token contains newline(s). Re-paste as a single line (no line breaks)."
-            exit 1
-          fi
-
-      - name: Install & Build (api/web)
+      # Build front-end (Vite)
+      - name: Install & Build Web App
         shell: bash
         run: |
           cd api/web
           npm ci
           npm run build
 
+      # Deploy BOTH web + api (let Azure detect Functions language)
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "api/web"
-          api_location: "api"
-          output_location: "dist"
+
+          # Web output (already built)
+          app_location: "api/web/dist"
           skip_app_build: true
-          skip_api_build: true
+
+          # Azure Functions API (Node)
+          api_location: "api"
+

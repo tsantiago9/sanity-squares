@@ -35,9 +35,9 @@ jobs:
           action: "upload"
 
           # Web output (already built)
-          app_location: "api/web/dist"
-          skip_app_build: true
-
+          app_location: "api/web"
+          output_location: "dist"
+          
           # Azure Functions API (Node)
           api_location: "api"
 

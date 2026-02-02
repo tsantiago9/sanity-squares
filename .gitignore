@@ -1,3 +1,11 @@
+@'
 # Azurite logs
 api/azurite/*.log
 api/azurite/debug.log
+
+# Azurite (local storage emulator) - ignore folders/config created by Azurite
+**/.azurite/
+**/azurite/
+**/AzureiteConfig
+**/AzureiteConfig/**
+'@ | Set-Content -Encoding UTF8 .gitignore

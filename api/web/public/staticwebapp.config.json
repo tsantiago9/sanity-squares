@@ -1,12 +1,10 @@
 {
+  "platform": { "apiRuntime": "node:20" },
   "routes": [
-    {
-      "route": "/",
-      "redirect": "/boardId-test-board",
-      "statusCode": 302
-    }
+    { "route": "/", "redirect": "/boardId-test-board", "statusCode": 302 }
   ],
   "navigationFallback": {
-    "rewrite": "/index.html"
+    "rewrite": "/index.html",
+    "exclude": ["/api/*"]
   }
 }

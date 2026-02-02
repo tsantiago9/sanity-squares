@@ -8,7 +8,6 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,9 +15,12 @@ jobs:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20.20.0"
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: |
+            api/package-lock.json
+            api/web/package-lock.json
 
-      # Build front-end (Vite)
       - name: Install & Build Web App
         shell: bash
         run: |
@@ -26,7 +28,13 @@ jobs:
           npm ci
           npm run build
 
-      # Install API dependencies (so we can skip Oryx API build)
+      - name: Verify SWA config exists in dist
+        shell: bash
+        run: |
+          test -f api/web/dist/staticwebapp.config.json
+          echo "✅ staticwebapp.config.json found in api/web/dist"
+          ls -la api/web/dist | sed -n '1,200p'
+
       - name: Install API deps
         shell: bash
         run: |
@@ -39,11 +47,6 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-
           app_location: "api/web"
           output_location: "dist"
           api_location: "api"
-
-          skip_app_build: true
-          skip_api_build: true
-

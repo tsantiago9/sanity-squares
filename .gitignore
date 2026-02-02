@@ -1,11 +1,30 @@
-@'
-# Azurite logs
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Node
+**/node_modules/
+**/dist/
+**/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Azure Functions local artifacts
+api/local.settings.json
+api/.funcignore
+api/bin/
+api/obj/
+
+# Azurite logs + folders (local storage emulator)
+**/azurite/
 api/azurite/*.log
 api/azurite/debug.log
+**/AzuriteConfig/
+**/AzuriteConfig/**
 
-# Azurite (local storage emulator) - ignore folders/config created by Azurite
-**/.azurite/
-**/azurite/
-**/AzureiteConfig
-**/AzureiteConfig/**
-'@ | Set-Content -Encoding UTF8 .gitignore
+# Azure Static Web Apps
+.azure/
+.swa/

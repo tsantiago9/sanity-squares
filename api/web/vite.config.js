@@ -1,13 +1,20 @@
 import { defineConfig } from "vite";
+import { resolve } from "path";
+import fs from "fs";
 
 export default defineConfig({
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://127.0.0.1:7071",
-        changeOrigin: true,
-        secure: false,
+  build: {
+    outDir: "dist",
+  },
+  plugins: [
+    {
+      name: "copy-swa-config",
+      closeBundle() {
+        fs.copyFileSync(
+          resolve(__dirname, "staticwebapp.config.json"),
+          resolve(__dirname, "dist/staticwebapp.config.json")
+        );
       },
     },
-  },
+  ],
 });

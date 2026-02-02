@@ -4,5 +4,8 @@
   "private": true,
   "main": "index.js",
   "engines": { "node": "20.x" },
-  "dependencies": {}
+  "dependencies": {
+    "@azure/data-tables": "^13.3.0",
+    "uuid": "^9.0.1"
+  }
 }

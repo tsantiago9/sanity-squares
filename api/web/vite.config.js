@@ -5,15 +5,21 @@ import fs from "fs";
 export default defineConfig({
   build: {
     outDir: "dist",
+    emptyOutDir: true,
+    rollupOptions: {
+      input: resolve(__dirname, "index.html"),
+    },
   },
   plugins: [
     {
-      name: "copy-swa-config",
+      name: "copy-staticwebapp-config",
       closeBundle() {
-        fs.copyFileSync(
-          resolve(__dirname, "staticwebapp.config.json"),
-          resolve(__dirname, "dist/staticwebapp.config.json")
-        );
+        const src = resolve(__dirname, "staticwebapp.config.json");
+        const dest = resolve(__dirname, "dist/staticwebapp.config.json");
+
+        if (fs.existsSync(src)) {
+          fs.copyFileSync(src, dest);
+        }
       },
     },
   ],

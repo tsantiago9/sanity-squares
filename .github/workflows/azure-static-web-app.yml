@@ -8,6 +8,7 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,8 +16,9 @@ jobs:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "20.20.0"
 
+      # Build front-end (Vite)
       - name: Install & Build Web App
         shell: bash
         run: |
@@ -24,13 +26,12 @@ jobs:
           npm ci
           npm run build
 
-      - name: Copy Static Web App config into dist
+      # Install API dependencies (so we can skip Oryx API build)
+      - name: Install API deps
         shell: bash
         run: |
-          test -f api/web/staticwebapp.config.json
-          mkdir -p api/web/dist
-          cp api/web/staticwebapp.config.json api/web/dist/staticwebapp.config.json
-          ls -la api/web/dist | sed -n '1,200p'
+          cd api
+          npm ci --omit=dev
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
@@ -38,6 +39,11 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
+
           app_location: "api/web"
           output_location: "dist"
           api_location: "api"
+
+          skip_app_build: true
+          skip_api_build: true
+

@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "redirect": "/boardId-test-board",
+      "statusCode": 302
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  }
+}

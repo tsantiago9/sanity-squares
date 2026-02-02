@@ -20,16 +20,32 @@ jobs:
           cache: "npm"
           cache-dependency-path: api/web/package-lock.json
 
-      # HARD FAIL if the secret isn't actually available to this run
-      - name: Sanity check SWA token is present
+      - name: Sanity check SWA token is present (and clean)
         shell: bash
         run: |
-          if [ -z "${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}" ]; then
+          TOKEN="${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}"
+
+          if [ -z "$TOKEN" ]; then
             echo "SWA TOKEN IS EMPTY (GitHub Action cannot read secrets.AZURE_STATIC_WEB_APPS_API_TOKEN)"
-            echo "Fix: Repo Settings → Secrets and variables → Actions → Repository secrets"
             exit 1
-          else
-            echo "SWA TOKEN PRESENT"
+          fi
+
+          echo "SWA TOKEN PRESENT"
+          echo "Token length: ${#TOKEN}"
+
+          # Token should be a single line
+          LINES=$(printf "%s" "$TOKEN" | awk 'END{print NR}')
+          echo "Token lines: $LINES"
+
+          # Detect literal ellipsis (copied a truncated UI value)
+          if [[ "$TOKEN" == *"..."* ]]; then
+            echo "ERROR: token contains literal '...' (likely copied a truncated display value). Re-copy full token."
+            exit 1
+          fi
+
+          if [ "$LINES" -ne 1 ]; then
+            echo "ERROR: token contains newline(s). Re-paste as a single line (no line breaks)."
+            exit 1
           fi
 
       - name: Install & Build (api/web)
@@ -48,3 +64,5 @@ jobs:
           app_location: "api/web"
           api_location: "api"
           output_location: "dist"
+          skip_app_build: true
+          skip_api_build: true
